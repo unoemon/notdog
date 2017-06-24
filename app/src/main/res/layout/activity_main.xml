@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageview_contents"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/not_dog_logo"/>
+
+
+        <TextView
+            android:id="@+id/textview_answer"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#000000"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            />
+
+
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/textview_lists"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:background="@color/transparent2"
+        android:textColor="#ffffff"
+        android:maxLines="10"
+        android:layout_above="@+id/layout_bottom"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        />
+
+
+
+    <RelativeLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:paddingLeft="30dp"
+        android:background="@color/transparent2"
+        android:paddingRight="30dp">
+
+        <at.markushi.ui.CircleButton
+            android:id="@+id/button_camera"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:src="@drawable/camera"
+            app:cb_color="@color/hotdog1"
+            app:cb_pressedRingWidth="8dip"/>
+
+        <at.markushi.ui.CircleButton
+            android:id="@+id/button_share"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/twitter"
+            app:cb_color="@color/twitter"
+            app:cb_pressedRingWidth="8dip"/>
+
+        <at.markushi.ui.CircleButton
+            android:id="@+id/button_gallery"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/photo"
+            app:cb_color="@color/hotdog2"
+            app:cb_pressedRingWidth="8dip"/>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

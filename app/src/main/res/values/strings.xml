@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">notdog</string>
+
+    <string name="string_dog">Dog</string>
+    <string name="string_hotdog">Hot Dog</string>
+
+
+</resources>
