@@ -1,8 +1,12 @@
 package com.unoemon.notdog.log;
 
 import com.unoemon.notdog.BuildConfig;
-
 import timber.log.Timber;
+
+/**
+ * Logger
+ * Timber wrapper
+ */
 
 public class Logger {
 

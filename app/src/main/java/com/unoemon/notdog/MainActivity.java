@@ -37,7 +37,10 @@ import rx.schedulers.Schedulers;
 import static com.unoemon.notdog.util.AppConst.MAXIMUM_SIZE;
 import static com.unoemon.notdog.util.AwsConst.IDENTITY_POOL_ID;
 
-
+/**
+ * Main actibity
+ * Amazon Rekognition Samples for Android
+ */
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.imageview_contents)

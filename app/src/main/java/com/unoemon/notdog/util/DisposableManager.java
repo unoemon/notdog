@@ -1,8 +1,12 @@
 package com.unoemon.notdog.util;
 
-
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+
+/**
+ * RxJava2 Disposable Manager
+ *
+ */
 
 public class DisposableManager {
 

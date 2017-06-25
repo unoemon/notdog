@@ -2,7 +2,6 @@ package com.unoemon.notdog.util;
 
 
 import android.graphics.Bitmap;
-
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
@@ -12,18 +11,15 @@ import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.rekognition.model.Label;
 import com.unoemon.notdog.MainApplication;
 import com.unoemon.notdog.log.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-
 import rx.Observable;
-
 import static com.unoemon.notdog.util.AwsConst.IDENTITY_POOL_ID;
 
-
 /**
- * Created by uno on 2017/03/01.
+ * Api util
+ *
  */
 
 public class ApiUtil {

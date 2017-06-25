@@ -2,9 +2,12 @@ package com.unoemon.notdog.log;
 
 import android.text.TextUtils;
 import android.util.Log;
-
-
 import timber.log.Timber;
+
+/**
+ * Ext debug tree
+ *
+ */
 
 public class ExtDebugTree extends Timber.DebugTree {
     private static final int MAX_LOG_LENGTH = 4000;

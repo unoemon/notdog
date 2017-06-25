@@ -12,7 +12,9 @@ import com.unoemon.notdog.log.Logger;
 
 import timber.log.Timber;
 
-
+/**
+ * Main application
+ */
 public class MainApplication extends Application {
 
     private static MainApplication instance = null;
