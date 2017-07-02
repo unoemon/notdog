@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         listsText.setText("");
 
         Disposable disposable = RxImagePicker.with(MainActivity.this).requestImage(sources)
-                .doOnSubscribe(consumer -> loadingView.show(getSupportFragmentManager(), ""))
+                .doOnNext(consumer -> loadingView.show(getSupportFragmentManager(), ""))
                 .subscribeOn(Schedulers.io())
                 .flatMap(uri -> RxImageConverters.uriToBitmap(MainActivity.this, uri))
                 .doOnNext(orgBitmap -> contentsImage.setImageBitmap(orgBitmap))
