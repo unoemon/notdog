@@ -1,7 +1,6 @@
 package com.unoemon.notdog;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.rekognition.model.Label;
 import com.mlsdev.rximagepicker.RxImageConverters;
 import com.mlsdev.rximagepicker.RxImagePicker;
@@ -21,18 +21,13 @@ import com.unoemon.notdog.util.AppConst;
 import com.unoemon.notdog.util.BitmapUtil;
 import com.unoemon.notdog.util.DisposableManager;
 
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.ObservableSource;
-import io.reactivex.annotations.NonNull;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.unoemon.notdog.util.AppConst.MAXIMUM_SIZE;
 import static com.unoemon.notdog.util.AwsConst.IDENTITY_POOL_ID;
@@ -93,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         if(IDENTITY_POOL_ID.length() == 0){
-            Toast.makeText(this, "Please set YOUR_IDENTITY_POOL_ID", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Please set YOUR_IDENTITY_POOL_ID", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -102,66 +97,44 @@ public class MainActivity extends AppCompatActivity {
         answerText.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent));
         listsText.setText("");
 
-        Disposable disposable =  RxImagePicker.with(MainActivity.this).requestImage(sources)
-                .flatMap(new Function<Uri, ObservableSource<Bitmap>>() {
-                    @Override
-                    public ObservableSource<Bitmap> apply(@NonNull Uri uri) throws Exception {
-                        return RxImageConverters.uriToBitmap(MainActivity.this, uri);
-                    }
-                }).subscribe(orgBitmap -> {
+        Disposable disposable = RxImagePicker.with(MainActivity.this).requestImage(sources)
+                .doOnSubscribe(consumer -> loadingView.show(getSupportFragmentManager(), ""))
+                .subscribeOn(Schedulers.io())
+                .flatMap(uri -> RxImageConverters.uriToBitmap(MainActivity.this, uri))
+                .doOnNext(orgBitmap -> contentsImage.setImageBitmap(orgBitmap))
+                .flatMap(orgBitmap -> Observable.just(orgBitmap)
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(bitmap -> ApiUtil.getDetectLabels(BitmapUtil.resize(bitmap, MAXIMUM_SIZE, MAXIMUM_SIZE))))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(() -> loadingView.dismiss())
+                .subscribe(labels -> {
+                    Logger.d("onNext!");
+                    boolean isFound = false;
+                    listsText.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.transparent2));
 
-                            if (loadingView != null) {
-                                loadingView.show(getSupportFragmentManager(), "");
-                            }
+                    for (Label label : labels) {
+                        Logger.d(label.getName() + ": " + label.getConfidence().toString());
+                        listsText.setText(listsText.getText() + label.getName() + "......" + label.getConfidence().toString() + "%" + "\n");
 
-                            if (contentsImage != null) {
-                                contentsImage.setImageBitmap(orgBitmap);
-                            }
-
-                            Bitmap detectBitmap = BitmapUtil.resize(orgBitmap, MAXIMUM_SIZE, MAXIMUM_SIZE);
-
-                            ApiUtil.getDetectLabels(detectBitmap)
-                                    .subscribeOn(Schedulers.newThread())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new Observer<List<Label>>() {
-                                        @Override
-                                        public void onCompleted() {
-                                            Logger.d("onCompleted!");
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            Logger.d("onError!");
-                                        }
-
-                                        @Override
-                                        public void onNext(List<Label> labels) {
-                                            Logger.d("onNext!");
-                                            boolean isFound = false;
-                                            listsText.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.transparent2));
-
-                                            for (Label label : labels) {
-                                                Logger.d(label.getName() + ": " + label.getConfidence().toString());
-                                                listsText.setText(listsText.getText() + label.getName() + "......" + label.getConfidence().toString() + "%" + "\n");
-
-                                                if (label.getName().equals(getString(R.string.string_dog))) {
-                                                    isFound = true;
-                                                    doFoundDog(label.getConfidence().toString());
-                                                }else if(label.getName().equals(getString(R.string.string_hotdog))){
-                                                    isFound = true;
-                                                    doFoundHotdog(label.getConfidence().toString());
-                                                }
-                                            }
-                                            if (!isFound) {
-                                                doNotDog();
-                                            }
-                                            if (loadingView != null) {
-                                                loadingView.dismiss();
-                                            }
-                                        }
-                                    });
+                        if (label.getName().equals(getString(R.string.string_dog))) {
+                            isFound = true;
+                            doFoundDog(label.getConfidence().toString());
+                        } else if (label.getName().equals(getString(R.string.string_hotdog))) {
+                            isFound = true;
+                            doFoundHotdog(label.getConfidence().toString());
                         }
-                );
+                    }
+                    if (!isFound) {
+                        doNotDog();
+                    }
+                }, e -> {
+                    Logger.d("onError! %s", e);
+                    String errorMessage = e.getMessage();
+                    if (e instanceof AmazonServiceException) {
+                        errorMessage = ((AmazonServiceException) e).getErrorMessage();
+                    }
+                    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                });
 
         DisposableManager.add(disposable);
 
